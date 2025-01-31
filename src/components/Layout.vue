@@ -15,9 +15,9 @@ const toggleSidebar = () => {
     <Navbar @toggle-sidebar="toggleSidebar"/>
     <div class="main-content d-flex">
       <Sidebar :isCollapsed="isSidebarCollapsed" />
-      <div class="content flex-grow-1 p-2">
-        <router-view />
-      </div>
+      <div :class="['content flex-grow-1 p-2', { 'collapsed': isSidebarCollapsed }]">
+  <router-view />
+</div>
     </div>
   </div>
 </template>
@@ -40,9 +40,24 @@ body {
 
 .content {
   overflow-y: auto;
+  transition: margin-left 0.3s;
 }
 
+.sidebar-collapsed + .content {
+  margin-left: 35px;
+}
+
+.content.collapsed {
+  margin-left: 35px;
+}
+
+
+
 @media (max-width: 768px) {
+  .content {
+    margin-left: 0; /* Sidebar becomes an overlay on small screens */
+  }
+
   .sidebar {
     position: absolute;
     z-index: 1000;
