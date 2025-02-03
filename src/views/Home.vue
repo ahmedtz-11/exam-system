@@ -39,18 +39,18 @@ export default {
 </script>
 
 <template>
-  <div class="card p-3">
+  <div class="card p-3 border-success">
     <h2>Dashboard</h2>
 
     <!-- Cards Section -->
-    <div class="row">
+    <div class="row mt-2">
       <div class="col-md-4">
         <div class="card text-white bg-primary mb-3" id="cards">
           <div class="card-body">
             <h5 class="card-title">
               <i class="bi bi-people-fill me-2"></i> Total Students
             </h5>
-            <p class="card-text">{{ students.length }}</p>
+            <p class="card-text fs-4 fw-bold">{{ students.length }}</p>
           </div>
         </div>
       </div>
@@ -60,7 +60,7 @@ export default {
             <h5 class="card-title">
               <i class="bi bi-building me-2"></i> Total Schools
             </h5>
-            <p class="card-text">{{ schools.length }}</p>
+            <p class="card-text fs-4 fw-bold">{{ schools.length }}</p>
           </div>
         </div>
       </div>
@@ -70,21 +70,21 @@ export default {
             <h5 class="card-title">
               <i class="bi bi-file-earmark-text me-2"></i> Pending Results
             </h5>
-            <p class="card-text">{{ pendingResults }}</p>
+            <p class="card-text fs-4 fw-bold">{{ pendingResults }}</p>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Additional Cards Section -->
-    <div class="row">
+    <div class="row mt-2">
       <div class="col-md-4">
         <div class="card text-white bg-info mb-3" id="cards">
           <div class="card-body">
             <h5 class="card-title">
               <i class="bi bi-calendar-check me-2"></i> Upcoming Exams
             </h5>
-            <p class="card-text">{{ upcomingExams }}</p>
+            <p class="card-text fs-4 fw-bold">{{ upcomingExams }}</p>
           </div>
         </div>
       </div>
@@ -94,7 +94,7 @@ export default {
             <h5 class="card-title">
               <i class="bi bi-exclamation-triangle me-2"></i> Issues Reported
             </h5>
-            <p class="card-text">{{ issuesReported }}</p>
+            <p class="card-text fs-4 fw-bold">{{ issuesReported }}</p>
           </div>
         </div>
       </div>
@@ -104,16 +104,16 @@ export default {
             <h5 class="card-title">
               <i class="bi bi-check-circle me-2"></i> Completed Exams
             </h5>
-            <p class="card-text">{{ completedExams }}</p>
+            <p class="card-text fs-4 fw-bold">{{ completedExams }}</p>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Tables Section -->
-    <div class="row">
+    <div class="row mt-3">
       <div class="col-md-6">
-        <h3><i class="bi bi-people me-2"></i> Recent Students</h3>
+        <h3 class="text-success"><i class="bi bi-people me-2"></i> Recent Students</h3>
         <table class="table table-striped">
           <thead>
             <tr>
@@ -133,7 +133,7 @@ export default {
       </div>
 
       <div class="col-md-6">
-        <h3><i class="bi bi-bell me-2"></i> Notifications</h3>
+        <h3 class="text-success"><i class="bi bi-bell me-2"></i> Notifications</h3>
         <ul class="list-group">
           <li
             v-for="notification in notifications"
@@ -149,7 +149,7 @@ export default {
     <!-- Charts Section -->
     <div class="row mt-4">
       <div class="col-md-6">
-        <h3><i class="bi bi-bar-chart me-2"></i> Exam Performance</h3>
+        <h3 class="text-success"><i class="bi bi-bar-chart me-2"></i> Exam Performance</h3>
         <div class="card p-3">
           <p class="text-muted">
             Placeholder for a bar chart showing exam performance by subject.
@@ -157,7 +157,7 @@ export default {
         </div>
       </div>
       <div class="col-md-6">
-        <h3><i class="bi bi-pie-chart me-2"></i> Result Distribution</h3>
+        <h3 class="text-success"><i class="bi bi-pie-chart me-2"></i> Result Distribution</h3>
         <div class="card p-3">
           <p class="text-muted">
             Placeholder for a pie chart showing result distribution (Pass/Fail).

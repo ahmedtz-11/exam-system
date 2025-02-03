@@ -12,4 +12,9 @@ const app = createApp(App)
 
 app.use(createPinia())
 app.use(router)
+
+router.afterEach((to) => {
+    document.title = `NECTA: ${to.meta.title || 'Home'}`;
+  });
+
 app.mount('#app')

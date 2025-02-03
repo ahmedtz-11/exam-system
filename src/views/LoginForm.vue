@@ -84,7 +84,7 @@ const onSubmit = handleSubmit((values) => {
       style="width: 550px; background-color: rgba(255, 255, 255, 0.6)"
     >
       <div class="card-header text-center">
-        <h2 class="fw-bold">Exam Council</h2>
+        <h2 class="fw-bold">NECTA</h2>
       </div>
       <div class="card-body fs-5">
         <form @submit.prevent="onSubmit">
@@ -97,7 +97,7 @@ const onSubmit = handleSubmit((values) => {
               type="text"
               id="username"
               v-model="username"
-              class="form-control fs-5"
+              class="form-control form-control-lg"
               :class="{ 'is-invalid': usernameError }"
               style="background-color: rgba(5, 200, 5, 0.2)"
             />
@@ -115,7 +115,7 @@ const onSubmit = handleSubmit((values) => {
                 :type="showPassword ? 'text' : 'password'"
                 id="password"
                 v-model="password"
-                class="form-control fs-5"
+                class="form-control form-control-lg"
                 :class="{ 'is-invalid': passwordError }"
                 style="background-color: rgba(5, 200, 5, 0.2)"
               />

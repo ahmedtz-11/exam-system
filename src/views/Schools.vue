@@ -158,21 +158,26 @@ const deleteSchool = (id) => {
 </script>
 
 <template>
-  <div class="card p-3">
-    <h2>Schools & Institutions</h2>
+  <div class="card p-3 border-success">
+    <h2>Schools Registered</h2>
 
     <!-- Search and Filter Controls -->
-    <div class="row mb-3">
-      <div class="col-md-5">
-        <input
-          v-model="searchQuery"
-          type="text"
-          class="form-control"
-          placeholder="Search by name..."
-        />
+    <div class="row g-2 mb-3">
+      <div class="col-12 col-sm-6 col-md-5">
+        <div class="input-group">
+          <span class="input-group-text bg-success text-white"
+            ><i class="bi bi-search"></i
+          ></span>
+          <input
+            v-model="searchQuery"
+            type="text"
+            class="form-control border-success"
+            placeholder="Search by name..."
+          />
+        </div>
       </div>
-      <div class="col-md-4">
-        <select v-model="filterType" class="form-control">
+      <div class="col-12 col-sm-6 col-md-4">
+        <select v-model="filterType" class="form-control border-success">
           <option value="">All Types</option>
           <option value="Public">Public</option>
           <option value="Private">Private</option>
@@ -184,49 +189,53 @@ const deleteSchool = (id) => {
     </div>
 
     <!-- Schools Table -->
-    <table class="table table-striped">
-      <thead class="table-dark">
-        <tr>
-          <th class="fw-bold">Name</th>
-          <th class="fw-bold">Code</th>
-          <th class="fw-bold">Type</th>
-          <th class="fw-bold">Location</th>
-          <th class="fw-bold text-center">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="school in paginatedSchools" :key="school.id">
-          <td>{{ school.name }}</td>
-          <td>{{ school.code }}</td>
-          <td>{{ school.type }}</td>
-          <td>{{ school.location }}</td>
-          <td class="text-center">
-            <button
-              class="btn btn-outline-primary btn-sm me-2"
-              @click="openModal(school)"
-            >
-              <i class="bi bi-pen"></i>
-            </button>
-            <button
-              class="btn btn-outline-danger btn-sm"
-              @click="deleteSchool(school.id)"
-            >
-              <i class="bi bi-trash3"></i>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead class="table-success">
+          <tr>
+            <th class="fw-bold">Name</th>
+            <th class="fw-bold">Code</th>
+            <th class="fw-bold">Type</th>
+            <th class="fw-bold">Location</th>
+            <th class="fw-bold text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="school in paginatedSchools" :key="school.id">
+            <td>{{ school.name }}</td>
+            <td>{{ school.code }}</td>
+            <td>{{ school.type }}</td>
+            <td>{{ school.location }}</td>
+            <td class="text-center">
+              <div class="btn-group">
+                <button
+                  class="btn btn-outline-primary btn-sm"
+                  @click="openModal(school)"
+                >
+                  <i class="bi bi-pen"></i>
+                </button>
+                <button
+                  class="btn btn-outline-danger btn-sm"
+                  @click="deleteSchool(school.id)"
+                >
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <!-- Pagination Controls -->
     <nav>
-      <ul class="pagination">
+      <ul class="pagination mt-3">
         <li class="page-item" :class="{ disabled: currentPage === 1 }">
           <button
             class="btn btn-success btn-md"
             @click="goToPage(currentPage - 1)"
           >
-            Previous
+            <i class="bi bi-skip-backward-fill"></i>
           </button>
         </li>
         <li
@@ -247,7 +256,7 @@ const deleteSchool = (id) => {
             class="btn btn-success btn-md"
             @click="goToPage(currentPage + 1)"
           >
-            Next
+            <i class="bi bi-skip-forward-fill"></i>
           </button>
         </li>
       </ul>
@@ -258,9 +267,9 @@ const deleteSchool = (id) => {
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">
+            <h3 class="modal-title">
               {{ isEditing ? "Edit School" : "Add School" }}
-            </h5>
+            </h3>
             <button
               type="button"
               class="btn-close"
@@ -275,7 +284,7 @@ const deleteSchool = (id) => {
                 v-model="selectedSchool.name"
                 type="text"
                 class="form-control"
-                placeholder="Enter school name"
+                placeholder="Enter school name..."
               />
             </div>
 
@@ -286,7 +295,7 @@ const deleteSchool = (id) => {
                 v-model="selectedSchool.code"
                 type="text"
                 class="form-control"
-                placeholder="Enter school code"
+                placeholder="Enter school code..."
               />
             </div>
 
@@ -303,37 +312,33 @@ const deleteSchool = (id) => {
             </div>
 
             <div>
-              <label for="schoolLocation" class="form-label">Location</label>
+              <label for="schoolLocation" class="form-label">Region</label>
               <input
                 id="schoolLocation"
                 v-model="selectedSchool.location"
                 type="text"
                 class="form-control"
-                placeholder="Enter location"
+                placeholder="Enter region..."
               />
             </div>
           </div>
 
           <div class="modal-footer">
-            <button class="btn btn-secondary" @click="isModalOpen = false">
+            <button class="btn btn-danger" @click="isModalOpen = false">
               Cancel
             </button>
-            <button class="btn btn-primary" @click="saveSchool">
+            <button class="btn btn-success" @click="saveSchool">
               {{ isEditing ? "Update" : "Save" }}
             </button>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Modal Backdrop -->
-    <div v-if="isModalOpen" class="modal-backdrop fade show"></div>
   </div>
 </template>
 
 <style scoped>
-.table-dark {
-  background-color: #343a40 !important;
-  color: white;
+.modal.fade.show {
+  background-color: rgba(0, 0, 0, 0.7);
 }
 </style>

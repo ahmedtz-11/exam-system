@@ -6,16 +6,16 @@ const schools = ref([
   {
     id: 1,
     name: "Greenwood High",
-    location: "City A",
+    location: "Mwanza",
     students: [
       {
         id: 1,
-        name: "John Doe",
+        name: "Emanuel Munisi",
         studentId: "S001",
         gender: "Male",
         dob: "2005-03-22",
-        address: "123 Main St",
-        phone: "0712345678",
+        status: "Eligible",
+        subjects: ["Math", "Science"],
       },
       {
         id: 2,
@@ -23,66 +23,120 @@ const schools = ref([
         studentId: "S002",
         gender: "Female",
         dob: "2006-07-15",
-        address: "456 Elm St",
-        phone: "0723456789",
+        status: "Eligible",
+        subjects: ["English", "History"],
+      },
+      {
+        id: 3,
+        name: "Sophie Williams",
+        studentId: "S003",
+        gender: "Female",
+        dob: "2005-05-12",
+        status: "Absent",
+        subjects: ["Geography", "Math"],
+      },
+      {
+        id: 4,
+        name: "David Lee",
+        studentId: "S004",
+        gender: "Male",
+        dob: "2004-11-22",
+        status: "Eligible",
+        subjects: ["Science", "History"],
       },
     ],
   },
   {
     id: 2,
     name: "Lakeview Secondary",
-    location: "City B",
+    location: "Shinyanga",
     students: [
       {
-        id: 3,
+        id: 5,
         name: "Michael Johnson",
-        studentId: "S003",
+        studentId: "S005",
         gender: "Male",
         dob: "2004-09-10",
-        address: "789 Oak St",
-        phone: "0734567890",
+        status: "Eligible",
+        subjects: ["Math", "Science"],
+      },
+      {
+        id: 6,
+        name: "Alicia Turner",
+        studentId: "S006",
+        gender: "Female",
+        dob: "2006-02-05",
+        status: "Eligible",
+        subjects: ["English", "Geography"],
+      },
+      {
+        id: 7,
+        name: "Lucas King",
+        studentId: "S007",
+        gender: "Male",
+        dob: "2005-07-18",
+        status: "Disqualified",
+        subjects: ["History", "Science"],
       },
     ],
   },
   {
     id: 3,
     name: "Starlight Academy",
-    location: "City A",
+    location: "Mwanza",
     students: [
       {
-        id: 4,
+        id: 8,
         name: "Emily Davis",
-        studentId: "S004",
+        studentId: "S008",
         gender: "Female",
         dob: "2005-12-25",
-        address: "101 Pine St",
-        phone: "0745678901",
+        status: "Eligible",
+        subjects: ["Math", "History"],
+      },
+      {
+        id: 9,
+        name: "Olivia Brown",
+        studentId: "S009",
+        gender: "Female",
+        dob: "2004-06-05",
+        status: "Pending",
+        subjects: ["Geography", "English"],
       },
     ],
   },
   {
     id: 4,
     name: "Unity High School",
-    location: "City C",
+    location: "Kagera",
     students: [
       {
-        id: 5,
+        id: 10,
         name: "James Wilson",
-        studentId: "S005",
+        studentId: "S010",
         gender: "Male",
         dob: "2006-01-30",
-        address: "202 Maple St",
-        phone: "0756789012",
+        status: "Eligible",
+        subjects: ["Science", "English"],
+      },
+      {
+        id: 11,
+        name: "Mia Thompson",
+        studentId: "S011",
+        gender: "Female",
+        dob: "2005-10-13",
+        status: "Eligible",
+        subjects: ["Math", "History"],
       },
     ],
   },
 ]);
 
-// Search, filter and pagination states
+const subjects = ref(["Math", "Science", "English", "History", "Geography"]);
 const searchQuery = ref("");
 const filterLocation = ref("");
 const currentPage = ref(1);
-const itemsPerPage = 5;
+const itemsPerPage = 8;
 
 // Modal state for adding/editing student
 const isModalOpen = ref(false);
@@ -93,9 +147,9 @@ const selectedStudent = ref({
   studentId: "",
   gender: "",
   dob: "",
-  address: "",
-  phone: "",
+  status: "",
   school: null,
+  subjects: [],
 });
 
 // Computed properties
@@ -148,8 +202,7 @@ const openModal = (student = null, schoolId = null) => {
       studentId: "",
       gender: "",
       dob: "",
-      address: "",
-      phone: "",
+      status: "",
       school: schoolId,
     };
   }
@@ -183,24 +236,29 @@ const deleteStudent = (schoolId, studentId) => {
 </script>
 
 <template>
-  <div class="card p-3">
-    <h2>Students</h2>
+  <div class="card p-3 border-success">
+    <h2>Students Registration</h2>
 
     <!-- Search and Filter Controls -->
-    <div class="row mb-3">
+    <div class="row g-2 mb-3">
       <div class="col-md-5">
-        <input
-          v-model="searchQuery"
-          type="text"
-          class="form-control"
-          placeholder="Search by school name..."
-        />
+        <div class="input-group">
+          <span class="input-group-text bg-success text-white">
+            <i class="bi bi-search"></i>
+          </span>
+          <input
+            v-model="searchQuery"
+            type="text"
+            class="form-control border-success"
+            placeholder="Search by school name..."
+          />
+        </div>
       </div>
       <div class="col-md-4">
-        <select v-model="filterLocation" class="form-control">
+        <select v-model="filterLocation" class="form-control border-success">
           <option value="">All Locations</option>
           <option
-            v-for="location in ['City A', 'City B', 'City C']"
+            v-for="location in ['Mwanza', 'Shinyanga', 'Kagera']"
             :key="location"
             :value="location"
           >
@@ -247,81 +305,95 @@ const deleteStudent = (schoolId, studentId) => {
             </div>
 
             <!-- Student Table for each school -->
-            <table class="table table-striped">
-              <thead class="table-dark">
-                <tr>
-                  <th class="fw-bold">Name</th>
-                  <th class="fw-bold">Student ID</th>
-                  <th class="fw-bold">Gender</th>
-                  <th class="fw-bold">DOB</th>
-                  <th class="fw-bold">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="student in school.students" :key="student.id">
-                  <td>{{ student.name }}</td>
-                  <td>{{ student.studentId }}</td>
-                  <td>{{ student.gender }}</td>
-                  <td>{{ student.dob }}</td>
-                  <td>
-                    <button
-                      class="btn btn-outline-primary btn-sm me-2"
-                      @click="openModal(student, school.id)"
-                    >
-                      <i class="bi bi-pen"></i>
-                    </button>
-                    <button
-                      class="btn btn-outline-danger btn-sm"
-                      @click="deleteStudent(school.id, student.id)"
-                    >
-                      <i class="bi bi-trash3"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead class="table-success">
+                  <tr>
+                    <th class="fw-bold">Student ID</th>
+                    <th class="fw-bold">Name</th>
+                    <th class="fw-bold">Gender</th>
+                    <th class="fw-bold">DOB</th>
+                    <th class="fw-bold">Subjects</th>
+                    <th class="fw-bold">Status</th>
+                    <th class="fw-bold">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="student in school.students" :key="student.id">
+                    <td>{{ student.studentId }}</td>
+                    <td>{{ student.name }}</td>
+                    <td>{{ student.gender }}</td>
+                    <td>{{ student.dob }}</td>
+                    <td>{{ student.subjects.join(", ") }}</td>
+                    <td>{{ student.status }}</td>
+                    <td>
+                      <div class="btn-group">
+                        <button
+                          class="btn btn-outline-primary btn-sm"
+                          @click="openModal(student, school.id)"
+                        >
+                          <i class="bi bi-pen"></i>
+                        </button>
+                        <button
+                          class="btn btn-outline-danger btn-sm"
+                          @click="deleteStudent(school.id, student.id)"
+                        >
+                          <i class="bi bi-trash3"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Pagination Controls -->
-    <nav aria-label="Student Pagination">
-      <ul class="pagination justify-content-center">
+    <nav>
+      <ul class="pagination mt-3">
         <li class="page-item" :class="{ disabled: currentPage === 1 }">
-          <button class="page-link" @click="goToPage(currentPage - 1)">
-            Previous
+          <button
+            class="btn btn-success btn-md"
+            @click="goToPage(currentPage - 1)"
+          >
+            <i class="bi bi-skip-backward-fill"></i>
           </button>
         </li>
         <li
           class="page-item"
           v-for="page in totalPages"
           :key="page"
-          :class="{ active: currentPage === page }"
+          :class="{ active: page === currentPage }"
         >
-          <button class="page-link" @click="goToPage(page)">{{ page }}</button>
+          <button
+            class="btn btn-outline-success btn-md"
+            @click="goToPage(page)"
+          >
+            {{ page }}
+          </button>
         </li>
         <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-          <button class="page-link" @click="goToPage(currentPage + 1)">
-            Next
+          <button
+            class="btn btn-success btn-md"
+            @click="goToPage(currentPage + 1)"
+          >
+            <i class="bi bi-skip-forward-fill"></i>
           </button>
         </li>
       </ul>
     </nav>
 
     <!-- Modal for Adding/Editing Student -->
-    <div
-      v-if="isModalOpen"
-      class="modal fade show"
-      tabindex="-1"
-      style="display: block"
-    >
+    <div v-if="isModalOpen" class="modal fade show d-block" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">
+            <h3 class="modal-title">
               {{ isEditing ? "Edit Student" : "Add Student" }}
-            </h5>
+            </h3>
             <button
               type="button"
               class="btn-close"
@@ -369,34 +441,51 @@ const deleteStudent = (schoolId, studentId) => {
                 class="form-control"
               />
             </div>
+            <!-- Subjects Enrolled -->
             <div class="mb-2">
-              <label for="address" class="form-label">Address</label>
-              <input
-                id="address"
-                v-model="selectedStudent.address"
-                type="text"
-                class="form-control"
-                placeholder="Enter address"
-              />
+              <label class="form-label">Subjects Enrolled</label>
+              <div>
+                <div
+                  class="form-check"
+                  v-for="subject in subjects"
+                  :key="subject"
+                >
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    :id="'subject-' + subject"
+                    v-model="selectedStudent.subjects"
+                    :value="subject"
+                  />
+                  <label class="form-check-label" :for="'subject-' + subject">
+                    {{ subject }}
+                  </label>
+                </div>
+              </div>
             </div>
+
+            <!-- Examination Status -->
             <div class="mb-2">
-              <label for="phone" class="form-label">Phone</label>
-              <input
-                id="phone"
-                v-model="selectedStudent.phone"
-                type="text"
+              <label for="status" class="form-label">Examination Status</label>
+              <select
+                id="status"
+                v-model="selectedStudent.status"
                 class="form-control"
-                placeholder="Enter phone number"
-              />
+              >
+                <option value="Eligible">Eligible</option>
+                <option value="Pending">Pending</option>
+                <option value="Disqualified">Disqualified</option>
+                <option value="Absent">Absent</option>
+              </select>
             </div>
           </div>
           <div class="modal-footer">
             <button
               type="button"
-              class="btn btn-secondary"
+              class="btn btn-danger"
               @click="isModalOpen = false"
             >
-              Close
+              Cancel
             </button>
             <button type="button" class="btn btn-primary" @click="saveStudent">
               Save
@@ -409,9 +498,31 @@ const deleteStudent = (schoolId, studentId) => {
 </template>
 
 <style scoped>
-/* Additional styling for modal and pagination */
 .modal.fade.show {
-  display: block;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.7);
 }
 </style>
+
+<!-- Pagination Controls -->
+<!-- <nav aria-label="Student Pagination">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" :class="{ disabled: currentPage === 1 }">
+          <button class="page-link" @click="goToPage(currentPage - 1)">
+            Previous
+          </button>
+        </li>
+        <li
+          class="page-item"
+          v-for="page in totalPages"
+          :key="page"
+          :class="{ active: currentPage === page }"
+        >
+          <button class="page-link" @click="goToPage(page)">{{ page }}</button>
+        </li>
+        <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+          <button class="page-link" @click="goToPage(currentPage + 1)">
+            Next
+          </button>
+        </li>
+      </ul>
+    </nav> -->

@@ -7,9 +7,10 @@ const toggleSidebar = () => {
 </script>
 
 <template>
-  <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: rgba(70, 150, 50, 0.6);">
+  <!-- style="background-color: rgba(70, 150, 50, 0.6);" -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-success">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">EXAM</a>
+      <a class="navbar-brand" href="#">NECTA</a>
       <button class="navbar-toggler" type="button" @click="toggleSidebar">
         <span class="navbar-toggler-icon"></span>
       </button>
