@@ -53,40 +53,53 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div
-    v-if="visible"
-    :class="[
-      'alert',
-      `alert-${type}`,
-      'alert-dismissible',
-      'fade',
-      'show',
-      'position-fixed',
-    ]"
-    style="top: 1rem; right: 1rem; z-index: 1050; min-width: 280px;"
-  >
-    {{ message }}
-    <button
-      type="button"
-      class="btn-close"
-      @click="closeAlert"
-      aria-label="Close"
-    ></button>
-  </div>
+  <Transition name="fade-slide">
+    <div
+      v-if="visible"
+      :class="[
+        'alert',
+        `alert-${type}`,
+        'alert-dismissible',
+        'position-fixed',
+      ]"
+    >
+      {{ message }}
+      <button
+        type="button"
+        class="btn-close"
+        @click="closeAlert"
+        aria-label="Close"
+      ></button>
+    </div>
+  </Transition>
 </template>
 
 <style scoped>
+/* Positioning the alert at the center */
 .alert {
-  animation: slide-in 0.5s ease-in-out;
+  display: flex;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 250px;
+  z-index: 1050;
+  text-align: center;
+  font-size: 1rem;
 }
-@keyframes slide-in {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+
+/* Transition Animations */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translate(-50%, -60%);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translate(-50%, -40%);
 }
 </style>

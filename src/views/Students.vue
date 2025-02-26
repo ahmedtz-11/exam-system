@@ -1,144 +1,15 @@
 <script setup>
 import { ref, computed } from "vue";
+import { useStudentsStore } from "@/stores/students";
+import { useSchoolsStore } from "@/stores/schools";
 
-// Sample data for schools and students
-const schools = ref([
-  {
-    id: 1,
-    name: "Greenwood High",
-    location: "Mwanza",
-    students: [
-      {
-        id: 1,
-        name: "Emanuel Munisi",
-        studentId: "S001",
-        gender: "Male",
-        dob: "2005-03-22",
-        status: "Eligible",
-        subjects: ["Math", "Science"],
-      },
-      {
-        id: 2,
-        name: "Jane Smith",
-        studentId: "S002",
-        gender: "Female",
-        dob: "2006-07-15",
-        status: "Eligible",
-        subjects: ["English", "History"],
-      },
-      {
-        id: 3,
-        name: "Sophie Williams",
-        studentId: "S003",
-        gender: "Female",
-        dob: "2005-05-12",
-        status: "Absent",
-        subjects: ["Geography", "Math"],
-      },
-      {
-        id: 4,
-        name: "David Lee",
-        studentId: "S004",
-        gender: "Male",
-        dob: "2004-11-22",
-        status: "Eligible",
-        subjects: ["Science", "History"],
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: "Lakeview Secondary",
-    location: "Shinyanga",
-    students: [
-      {
-        id: 5,
-        name: "Michael Johnson",
-        studentId: "S005",
-        gender: "Male",
-        dob: "2004-09-10",
-        status: "Eligible",
-        subjects: ["Math", "Science"],
-      },
-      {
-        id: 6,
-        name: "Alicia Turner",
-        studentId: "S006",
-        gender: "Female",
-        dob: "2006-02-05",
-        status: "Eligible",
-        subjects: ["English", "Geography"],
-      },
-      {
-        id: 7,
-        name: "Lucas King",
-        studentId: "S007",
-        gender: "Male",
-        dob: "2005-07-18",
-        status: "Disqualified",
-        subjects: ["History", "Science"],
-      },
-    ],
-  },
-  {
-    id: 3,
-    name: "Starlight Academy",
-    location: "Mwanza",
-    students: [
-      {
-        id: 8,
-        name: "Emily Davis",
-        studentId: "S008",
-        gender: "Female",
-        dob: "2005-12-25",
-        status: "Eligible",
-        subjects: ["Math", "History"],
-      },
-      {
-        id: 9,
-        name: "Olivia Brown",
-        studentId: "S009",
-        gender: "Female",
-        dob: "2004-06-05",
-        status: "Pending",
-        subjects: ["Geography", "English"],
-      },
-    ],
-  },
-  {
-    id: 4,
-    name: "Unity High School",
-    location: "Kagera",
-    students: [
-      {
-        id: 10,
-        name: "James Wilson",
-        studentId: "S010",
-        gender: "Male",
-        dob: "2006-01-30",
-        status: "Eligible",
-        subjects: ["Science", "English"],
-      },
-      {
-        id: 11,
-        name: "Mia Thompson",
-        studentId: "S011",
-        gender: "Female",
-        dob: "2005-10-13",
-        status: "Eligible",
-        subjects: ["Math", "History"],
-      },
-    ],
-  },
-]);
+const schoolsStore = useSchoolsStore();
+const studentsStore = useStudentsStore();
 
-const subjects = ref(["Math", "Science", "English", "History", "Geography"]);
 const searchQuery = ref("");
 const filterLocation = ref("");
 const currentPage = ref(1);
 const itemsPerPage = 8;
-
-// Modal state for adding/editing student
 const isModalOpen = ref(false);
 const isEditing = ref(false);
 const selectedStudent = ref({
@@ -152,44 +23,54 @@ const selectedStudent = ref({
   subjects: [],
 });
 
-// Computed properties
+// Declare selectedSchool as a ref to track the selected school
+const selectedSchool = ref(null);
+
+// Filter schools based on search and location
 const filteredSchools = computed(() => {
-  return schools.value.filter(
+  return schoolsStore.schools.filter(
     (school) =>
       school.name.toLowerCase().includes(searchQuery.value.toLowerCase()) &&
       (filterLocation.value ? school.location === filterLocation.value : true)
   );
 });
 
-const filteredStudents = computed(() => {
-  return schools.value.flatMap((school) =>
-    school.students.filter(
-      (student) =>
-        student.name.toLowerCase().includes(searchQuery.value.toLowerCase()) &&
-        (filterLocation.value ? school.location === filterLocation.value : true)
-    )
+// Filter students by school name, using selectedSchool
+const filteredStudentsBySchool = computed(() => {
+  // Ensure studentsStore.students is populated
+  if (
+    !studentsStore.students ||
+    studentsStore.students.length === 0 ||
+    !selectedSchool.value
+  ) {
+    return [];
+  }
+
+  // Filter students by school name
+  return studentsStore.students.filter(
+    (student) => student.school_name === selectedSchool.value
   );
 });
 
 // Paginate filtered students
 const paginatedStudents = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
-  return filteredStudents.value.slice(start, start + itemsPerPage);
+  return filteredStudentsBySchool.value.slice(start, start + itemsPerPage);
 });
 
-// Total pages for pagination
+// Total number of pages for pagination
 const totalPages = computed(() =>
-  Math.ceil(filteredStudents.value.length / itemsPerPage)
+  Math.ceil(filteredStudentsBySchool.value.length / itemsPerPage)
 );
 
-// Handle page change
+// Change page when navigating through pagination
 const goToPage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page;
   }
 };
 
-// Open modal for add/edit student
+// Open modal to edit or create a student
 const openModal = (student = null, schoolId = null) => {
   if (student) {
     isEditing.value = true;
@@ -209,29 +90,20 @@ const openModal = (student = null, schoolId = null) => {
   isModalOpen.value = true;
 };
 
-// Save student (add/edit)
+// Save student to the store
 const saveStudent = () => {
-  const school = schools.value.find(
-    (s) => s.id === selectedStudent.value.school
-  );
-  if (isEditing.value) {
-    const index = school.students.findIndex(
-      (s) => s.id === selectedStudent.value.id
-    );
-    if (index !== -1) school.students[index] = { ...selectedStudent.value };
-  } else {
-    selectedStudent.value.id = school.students.length + 1;
-    school.students.push({ ...selectedStudent.value });
-  }
+  schoolsStore.saveStudent(selectedStudent.value, isEditing.value);
   isModalOpen.value = false;
 };
 
-// Delete student
+// Delete student from the store
 const deleteStudent = (schoolId, studentId) => {
-  const school = schools.value.find((s) => s.id === schoolId);
-  school.students = school.students.filter(
-    (student) => student.id !== studentId
-  );
+  schoolsStore.deleteStudent(schoolId, studentId);
+};
+
+// Function to handle opening the accordion and setting the selected school
+const openSchoolAccordion = (schoolName) => {
+  selectedSchool.value = schoolName; // Set the selected school
 };
 </script>
 
@@ -269,6 +141,91 @@ const deleteStudent = (schoolId, studentId) => {
     </div>
 
     <!-- Schools Accordion -->
+    <!-- <div class="accordion" id="accordionSchools">
+      <div
+        v-for="school in filteredSchools"
+        :key="school.id"
+        class="accordion-item"
+      >
+        <h2 class="accordion-header" :id="'heading-' + school.id">
+          <button
+            class="accordion-button"
+            type="button"
+            data-bs-toggle="collapse"
+            :data-bs-target="'#collapse-' + school.id"
+            aria-expanded="true"
+            :aria-controls="'collapse-' + school.id"
+          >
+            {{ school.name }} ({{ school.location }})
+          </button>
+        </h2>
+        <div
+          :id="'collapse-' + school.id"
+          class="accordion-collapse collapse"
+          :aria-labelledby="'heading-' + school.id"
+          data-bs-parent="#accordionSchools"
+        >
+          <div class="accordion-body">
+            <div class="text-end mb-2">
+              <button
+                class="btn btn-success"
+                @click="openModal(null, school.id)"
+              >
+                Add Student
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead class="table-success">
+                  <tr>
+                    <th class="fw-bold">Student ID</th>
+                    <th class="fw-bold">Name</th>
+                    <th class="fw-bold">Gender</th>
+                    <th class="fw-bold">DOB</th>
+                    <th class="fw-bold">Subjects</th>
+                    <th class="fw-bold">Status</th>
+                    <th class="fw-bold">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="student in paginatedStudents" :key="student.id">
+                    <td>{{ student.registration_number }}</td>
+                    <td>
+                      {{ student.first_name }} {{ student.middle_name }}
+                      {{ student.last_name }}
+                    </td>
+                    <td>{{ student.gender }}</td>
+                    <td>{{ student.dob }}</td>
+                    <td>{{ student.subjects.join(", ") }}</td>
+                    <td>{{ student.status }}</td>
+                    <td>
+                      <div class="btn-group">
+                        <button
+                          class="btn btn-outline-primary btn-sm"
+                          @click="openModal(student, student.school_name)"
+                        >
+                          <i class="bi bi-pen"></i>
+                        </button>
+                        <button
+                          class="btn btn-outline-danger btn-sm"
+                          @click="
+                            deleteStudent(student.school_name, student.id)
+                          "
+                        >
+                          <i class="bi bi-trash3"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> -->
+
     <div class="accordion" id="accordionSchools">
       <div
         v-for="school in filteredSchools"
@@ -283,6 +240,10 @@ const deleteStudent = (schoolId, studentId) => {
             :data-bs-target="'#collapse-' + school.id"
             aria-expanded="true"
             :aria-controls="'collapse-' + school.id"
+            @click="
+              selectedSchool.value =
+                selectedSchool.value === school.name ? null : school.name
+            "
           >
             {{ school.name }} ({{ school.location }})
           </button>
@@ -319,9 +280,16 @@ const deleteStudent = (schoolId, studentId) => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="student in school.students" :key="student.id">
-                    <td>{{ student.studentId }}</td>
-                    <td>{{ student.name }}</td>
+                  <!-- Display students for the current school -->
+                  <tr
+                    v-for="student in filteredStudentsBySchool"
+                    :key="student.id"
+                  >
+                    <td>{{ student.registration_number }}</td>
+                    <td>
+                      {{ student.first_name }} {{ student.middle_name }}
+                      {{ student.last_name }}
+                    </td>
                     <td>{{ student.gender }}</td>
                     <td>{{ student.dob }}</td>
                     <td>{{ student.subjects.join(", ") }}</td>
@@ -346,13 +314,34 @@ const deleteStudent = (schoolId, studentId) => {
                 </tbody>
               </table>
             </div>
+
+            <!-- Pagination for filtered students in each school -->
+            <div
+              v-if="filteredStudentsBySchool.length > itemsPerPage"
+              class="d-flex justify-content-between"
+            >
+              <button
+                class="btn btn-secondary btn-sm"
+                @click="goToPage(currentPage.value - 1)"
+                :disabled="currentPage.value <= 1"
+              >
+                Previous
+              </button>
+              <button
+                class="btn btn-secondary btn-sm"
+                @click="goToPage(currentPage.value + 1)"
+                :disabled="currentPage.value >= totalPages.value"
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Pagination Controls -->
-    <nav>
+    <!-- <nav>
       <ul class="pagination mt-3">
         <li class="page-item" :class="{ disabled: currentPage === 1 }">
           <button
@@ -384,145 +373,116 @@ const deleteStudent = (schoolId, studentId) => {
           </button>
         </li>
       </ul>
-    </nav>
-
-    <!-- Modal for Adding/Editing Student -->
-    <div v-if="isModalOpen" class="modal fade show d-block" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h3 class="modal-title">
-              {{ isEditing ? "Edit Student" : "Add Student" }}
-            </h3>
-            <button
-              type="button"
-              class="btn-close"
-              @click="isModalOpen = false"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <div class="mb-2">
-              <label for="name" class="form-label">Name</label>
-              <input
-                id="name"
-                v-model="selectedStudent.name"
-                type="text"
-                class="form-control"
-                placeholder="Enter student name"
-              />
-            </div>
-            <div class="mb-2">
-              <label for="studentId" class="form-label">Student ID</label>
-              <input
-                id="studentId"
-                v-model="selectedStudent.studentId"
-                type="text"
-                class="form-control"
-                placeholder="Enter student ID"
-              />
-            </div>
-            <div class="mb-2">
-              <label for="gender" class="form-label">Gender</label>
-              <select
-                id="gender"
-                v-model="selectedStudent.gender"
-                class="form-control"
-              >
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-            </div>
-            <div class="mb-2">
-              <label for="dob" class="form-label">Date of Birth</label>
-              <input
-                id="dob"
-                v-model="selectedStudent.dob"
-                type="date"
-                class="form-control"
-              />
-            </div>
-            <!-- Subjects Enrolled -->
-            <div class="mb-2">
-              <label class="form-label">Subjects Enrolled</label>
-              <div>
-                <div
-                  class="form-check"
-                  v-for="subject in subjects"
-                  :key="subject"
-                >
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    :id="'subject-' + subject"
-                    v-model="selectedStudent.subjects"
-                    :value="subject"
-                  />
-                  <label class="form-check-label" :for="'subject-' + subject">
-                    {{ subject }}
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <!-- Examination Status -->
-            <div class="mb-2">
-              <label for="status" class="form-label">Examination Status</label>
-              <select
-                id="status"
-                v-model="selectedStudent.status"
-                class="form-control"
-              >
-                <option value="Eligible">Eligible</option>
-                <option value="Pending">Pending</option>
-                <option value="Disqualified">Disqualified</option>
-                <option value="Absent">Absent</option>
-              </select>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-danger"
-              @click="isModalOpen = false"
-            >
-              Cancel
-            </button>
-            <button type="button" class="btn btn-primary" @click="saveStudent">
-              Save
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    </nav> -->
   </div>
 </template>
 
-<style scoped>
-.modal.fade.show {
-  background-color: rgba(0, 0, 0, 0.7);
-}
-</style>
+<style scoped></style>
 
-<!-- Pagination Controls -->
-<!-- <nav aria-label="Student Pagination">
-      <ul class="pagination justify-content-center">
-        <li class="page-item" :class="{ disabled: currentPage === 1 }">
-          <button class="page-link" @click="goToPage(currentPage - 1)">
-            Previous
-          </button>
-        </li>
-        <li
-          class="page-item"
-          v-for="page in totalPages"
-          :key="page"
-          :class="{ active: currentPage === page }"
+<!-- <div v-if="isModalOpen" class="modal fade show d-block" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          {{ isEditing ? "Edit Student" : "Add Student" }}
+        </h3>
+        <button
+          type="button"
+          class="btn-close"
+          @click="isModalOpen = false"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2">
+          <label for="name" class="form-label">Name</label>
+          <input
+            id="name"
+            v-model="selectedStudent.name"
+            type="text"
+            class="form-control"
+            placeholder="Enter student name"
+          />
+        </div>
+        <div class="mb-2">
+          <label for="studentId" class="form-label">Student ID</label>
+          <input
+            id="studentId"
+            v-model="selectedStudent.studentId"
+            type="text"
+            class="form-control"
+            placeholder="Enter student ID"
+          />
+        </div>
+        <div class="mb-2">
+          <label for="gender" class="form-label">Gender</label>
+          <select
+            id="gender"
+            v-model="selectedStudent.gender"
+            class="form-control"
+          >
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
+        <div class="mb-2">
+          <label for="dob" class="form-label">Date of Birth</label>
+          <input
+            id="dob"
+            v-model="selectedStudent.dob"
+            type="date"
+            class="form-control"
+          />
+        </div>
+        
+        <div class="mb-2">
+          <label class="form-label">Subjects Enrolled</label>
+          <div class="row p-2">
+            <div
+              class="form-check col-md-4"
+              v-for="subject in subjects"
+              :key="subject"
+            >
+              <input
+                class="form-check-input"
+                type="checkbox"
+                :id="'subject-' + subject"
+                v-model="selectedStudent.subjects"
+                :value="subject"
+              />
+              <label class="form-check-label" :for="'subject-' + subject">
+                {{ subject }}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        
+        <div class="mb-2">
+          <label for="status" class="form-label">Examination Status</label>
+          <select
+            id="status"
+            v-model="selectedStudent.status"
+            class="form-control"
+          >
+            <option value="Eligible">Eligible</option>
+            <option value="Pending">Pending</option>
+            <option value="Disqualified">Disqualified</option>
+            <option value="Absent">Absent</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          @click="isModalOpen = false"
         >
-          <button class="page-link" @click="goToPage(page)">{{ page }}</button>
-        </li>
-        <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-          <button class="page-link" @click="goToPage(currentPage + 1)">
-            Next
-          </button>
-        </li>
-      </ul>
-    </nav> -->
+          Cancel
+        </button>
+        <button type="button" class="btn btn-success" @click="saveStudent">
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div> -->

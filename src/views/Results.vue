@@ -368,6 +368,7 @@ const getDivision = (average) => {
                     </th>
                     <th class="fw-bold">Average</th>
                     <th class="fw-bold">Division</th>
+                    <th class="fw-bold">Certificate</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -382,6 +383,20 @@ const getDivision = (average) => {
                     </td>
                     <td>{{ getAverage(student.scores) }}</td>
                     <td>{{ getDivision(getAverage(student.scores)) }}</td>
+                    <td>
+                      <div class="btn-group">
+                        <button
+                          class="btn btn-outline-secondary btn-sm"
+                        >
+                          <i class="bi bi-eye"></i>
+                        </button>
+                        <button
+                          class="btn btn-outline-success btn-sm"
+                        >
+                          <i class="bi bi-download"></i>
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 </tbody>
               </table>

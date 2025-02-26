@@ -15,7 +15,7 @@ const routes = [
         component: LoginForm
     },
     {
-        path: '/layout',
+        path: '/home',
         component: Layout,
         children: [
             {
@@ -36,7 +36,7 @@ const routes = [
             {
                 path: '/exams',
                 component: Examination,
-                meta: { title: 'Examination' } 
+                meta: { title: 'Exams' } 
             },
             {
                 path: '/results',
@@ -56,5 +56,7 @@ const router = createRouter({
     history: createWebHistory(),
     routes,
   });
+
+  
 
 export default router

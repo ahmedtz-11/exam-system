@@ -1,51 +1,88 @@
-<script>
-export default {
-  data() {
-    return {
-      // Raw data for students
-      students: [
-        { id: 1, name: "John Doe", school: "Greenwood High" },
-        { id: 2, name: "Jane Smith", school: "Sunrise Academy" },
-        { id: 3, name: "Alice Johnson", school: "Maplewood School" },
-        { id: 4, name: "Bob Brown", school: "Greenwood High" },
-        { id: 5, name: "Charlie Davis", school: "Sunrise Academy" },
-      ],
-      // Raw data for schools
-      schools: [
-        { id: 1, name: "Greenwood High" },
-        { id: 2, name: "Sunrise Academy" },
-        { id: 3, name: "Maplewood School" },
-      ],
-      // Raw data for notifications
-      notifications: [
-        { id: 1, message: "Exam results will be released on 30th October." },
-        { id: 2, message: "Registration for the next term is now open." },
-        { id: 3, message: "Deadline for exam fee payment is 15th November." },
-      ],
-      // Additional data
-      pendingResults: 12,
-      upcomingExams: 5,
-      issuesReported: 3,
-      completedExams: 20,
-    };
-  },
-  computed: {
-    // Get the 5 most recent students
-    recentStudents() {
-      return this.students.slice(-5);
+<script setup>
+import { computed, ref, onMounted } from "vue";
+import BarChart from "@/components/BarChart.vue";
+import PieChart from "@/components/PieChart.vue";
+import dataService from "@/services/dataService";
+import { useSchoolsStore } from "@/stores/schools";
+import { useStudentsStore } from "@/stores/students";
+
+const schoolsStore = useSchoolsStore();
+const studentsStore = useStudentsStore();
+
+// Sample Data for Bar Chart
+const barChartData = ref({
+  labels: ["Math", "Science", "English", "History", "Physics", "Kiswahili"],
+  datasets: [
+    {
+      label: "Average Score",
+      data: [55, 80, 68, 90, 60, 85],
+      backgroundColor: ["#007bff", "#28a745", "#ffc107", "#dc3545", "#ff9977", "#dcd3a2"],
     },
-  },
-};
+  ],
+});
+
+// Sample Data for Pie Chart
+const pieChartData = ref({
+  labels: ["Pass (%)", "Fail (%)"],
+  datasets: [
+    {
+      data: [95, 5],
+      backgroundColor: ["#28a745", "#dc3545"],
+    },
+  ],
+});
+
+// Chart Options
+const chartOptions = ref({
+  responsive: true,
+  maintainAspectRatio: false,
+});
+
+// Define reactive data
+const students = ref([
+  { id: 1, name: "John Doe", school: "Greenwood High" },
+  { id: 2, name: "Jane Smith", school: "Sunrise Academy" },
+  { id: 3, name: "Alice Johnson", school: "Maplewood School" },
+  { id: 4, name: "Bob Brown", school: "Greenwood High" },
+  { id: 5, name: "Charlie Davis", school: "Sunrise Academy" },
+]);
+
+const schools = ref([
+  { id: 1, name: "Greenwood High" },
+  { id: 2, name: "Sunrise Academy" },
+  { id: 3, name: "Maplewood School" },
+]);
+
+const notifications = ref([
+  { id: 1, message: "Exam results will be released on 30th October." },
+  { id: 2, message: "Registration for the next term is now open." },
+  { id: 3, message: "Deadline for exam fee payment is 15th November." },
+]);
+
+const pendingResults = ref(12);
+const upcomingExams = ref(5);
+const issuesReported = ref(3);
+const completedExams = ref(20);
+
+// Computed property for recent students
+const recentStudents = computed(() => students.value.slice(-5));
+
+onMounted(() => {
+  studentsStore.fetchStudents();
+  schoolsStore.fetchSchools();
+
+  dataService.getSplash();
+});
 </script>
 
 <template>
   <div class="card p-3 border-success">
-    <h2>Dashboard</h2>
+    <h2>Overall Statistics</h2>
 
     <!-- Cards Section -->
     <div class="row mt-2">
       <div class="col-md-4">
-        <div class="card text-white bg-primary mb-3" id="cards">
+        <div class="card text-white bg-success mb-2" id="cards">
           <div class="card-body">
             <h5 class="card-title">
               <i class="bi bi-people-fill me-2"></i> Total Students
@@ -55,7 +92,7 @@ export default {
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card text-white bg-success mb-3" id="cards">
+        <div class="card text-white bg-warning mb-2" id="cards">
           <div class="card-body">
             <h5 class="card-title">
               <i class="bi bi-building me-2"></i> Total Schools
@@ -65,7 +102,7 @@ export default {
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card text-white bg-warning mb-3" id="cards">
+        <div class="card text-white bg-primary mb-2" id="cards">
           <div class="card-body">
             <h5 class="card-title">
               <i class="bi bi-file-earmark-text me-2"></i> Pending Results
@@ -76,50 +113,18 @@ export default {
       </div>
     </div>
 
-    <!-- Additional Cards Section -->
-    <div class="row mt-2">
-      <div class="col-md-4">
-        <div class="card text-white bg-info mb-3" id="cards">
-          <div class="card-body">
-            <h5 class="card-title">
-              <i class="bi bi-calendar-check me-2"></i> Upcoming Exams
-            </h5>
-            <p class="card-text fs-4 fw-bold">{{ upcomingExams }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card text-white bg-danger mb-3" id="cards">
-          <div class="card-body">
-            <h5 class="card-title">
-              <i class="bi bi-exclamation-triangle me-2"></i> Issues Reported
-            </h5>
-            <p class="card-text fs-4 fw-bold">{{ issuesReported }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card text-white bg-secondary mb-3" id="cards">
-          <div class="card-body">
-            <h5 class="card-title">
-              <i class="bi bi-check-circle me-2"></i> Completed Exams
-            </h5>
-            <p class="card-text fs-4 fw-bold">{{ completedExams }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Tables Section -->
-    <div class="row mt-3">
+    <div class="row mt-2">
       <div class="col-md-6">
-        <h3 class="text-success"><i class="bi bi-people me-2"></i> Recent Students</h3>
+        <h3 class="text-success">
+          <i class="bi bi-people me-2"></i> Recent Students
+        </h3>
         <table class="table table-striped">
           <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>School</th>
+            <tr class="table-success">
+              <th class="fw-bold">ID</th>
+              <th class="fw-bold">Name</th>
+              <th class="fw-bold">School</th>
             </tr>
           </thead>
           <tbody>
@@ -133,7 +138,9 @@ export default {
       </div>
 
       <div class="col-md-6">
-        <h3 class="text-success"><i class="bi bi-bell me-2"></i> Notifications</h3>
+        <h3 class="text-success">
+          <i class="bi bi-bell me-2"></i> Notifications
+        </h3>
         <ul class="list-group">
           <li
             v-for="notification in notifications"
@@ -147,21 +154,21 @@ export default {
     </div>
 
     <!-- Charts Section -->
-    <div class="row mt-4">
+    <div class="row g-3 mt-3">
       <div class="col-md-6">
-        <h3 class="text-success"><i class="bi bi-bar-chart me-2"></i> Exam Performance</h3>
-        <div class="card p-3">
-          <p class="text-muted">
-            Placeholder for a bar chart showing exam performance by subject.
-          </p>
+        <h3 class="text-success">
+          <i class="bi bi-bar-chart me-2"></i> Exam Performance
+        </h3>
+        <div class="card p-3" style="height: 300px">
+          <BarChart :chartData="barChartData" :chartOptions="chartOptions" />
         </div>
       </div>
       <div class="col-md-6">
-        <h3 class="text-success"><i class="bi bi-pie-chart me-2"></i> Result Distribution</h3>
-        <div class="card p-3">
-          <p class="text-muted">
-            Placeholder for a pie chart showing result distribution (Pass/Fail).
-          </p>
+        <h3 class="text-success">
+          <i class="bi bi-pie-chart me-2"></i> Result Distribution
+        </h3>
+        <div class="card p-3" style="height: 300px">
+          <PieChart :chartData="pieChartData" :chartOptions="chartOptions" />
         </div>
       </div>
     </div>
